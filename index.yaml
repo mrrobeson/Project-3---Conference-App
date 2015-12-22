@@ -94,3 +94,26 @@ indexes:
   properties:
   - name: topics
   - name: name
+
+- kind: Profile
+  properties:
+  - name: displayName
+  - name: sessionWishlistKeys
+
+- kind: Session
+  properties:
+  - name
+  - date
+  - highlights
+
+- kind: Session
+  properties:
+  - name
+  - typeOfSession
+
+- kind: Session
+  properties:
+  - name
+  - startTime
+  - date
+  - duration
