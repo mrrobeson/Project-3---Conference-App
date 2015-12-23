@@ -36,6 +36,8 @@ from models import ConferenceForms
 from models import ConferenceQueryForm
 from models import ConferenceQueryForms
 from models import TeeShirtSize
+from models import SessionForm
+from models import SessionForms
 
 from settings import WEB_CLIENT_ID
 from settings import ANDROID_CLIENT_ID
@@ -82,6 +84,16 @@ CONF_GET_REQUEST = endpoints.ResourceContainer(
 CONF_POST_REQUEST = endpoints.ResourceContainer(
     ConferenceForm,
     websafeConferenceKey=messages.StringField(1),
+)
+
+SESSION_GET_REQUEST = endpoints.ResourceContainer(
+    message_types.VoidMessage,
+    websafeSessionKey=messages.StringField(1),
+)
+
+SESSION_POST_REQUEST = endpoints.ResourceContainer(
+    SessionForm,
+    websafeSessionKey=messages.StringField(1),
 )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -564,7 +576,7 @@ class ConferenceApi(remote.Service):
 
 # getConferenceSessionsByType(websafeConferenceKey)--Given a conference, return
 # all sessions of a specified type(eg lecture, keynote, workshop)
-    @endpoints.method(CONF_GET_REQUEST, SESSION_GET_REQUEST, BooleanMessage,
+    @endpoints.method(ConferenceQueryForms, SessionForms,
             path='conference/{websafeConferenceKey}',
             http_method='POST', name='getConferenceSessionsByType')
     def getConferenceSessionsByType(self, request):
@@ -583,7 +595,7 @@ class ConferenceApi(remote.Service):
             names[profile.key.id()] = profile.displayName
 
         # return set of ConferenceForm objects per Conference
-        return ConferenceForms(items=[self._copyConferenceToForm(conf, names[conf.organizerUserId])\
+        return SessionForms(items=[self._copyConferenceToForm(conf, names[conf.organizerUserId])\
          for conf in conferences]
         )
 # getSessionsBySpeaker(speaker)--given a speaker, return sessions by speaker
@@ -774,14 +786,14 @@ class ConferenceApi(remote.Service):
 # Solve this query related problem - say you don't like workshops and sessions after 7PM
 # What is the problem with this query and what ways can you solve it
 
-filter(Session.time>=19)
+# #filter(Session.time>=19)
 
 
-# - - - Add a Task - - - - - - - - - - - - - - 
+# # - - - Add a Task - - - - - - - - - - - - - - 
 
-# When adding a new session to conference, determine whether or not the session's speaker
-# should be the new featured speaker. Should be handled using App Engine Task Queue
+# # When adding a new session to conference, determine whether or not the session's speaker
+# # should be the new featured speaker. Should be handled using App Engine Task Queue
 
-# getFeaturedSpeaker()
+# # getFeaturedSpeaker()
 
 api = endpoints.api_server([ConferenceApi]) # register API

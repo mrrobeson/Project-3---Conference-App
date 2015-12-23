@@ -82,6 +82,7 @@ class ConferenceForms(messages.Message):
     items = messages.MessageField(ConferenceForm, 1, repeated=True)
 
 class Session(ndb.Model):
+    """SessionForm -- session object"""
     name            = ndb.StringProperty(required=True)
     highlights      = ndb.StringProperty(repeated=True)
     speaker         = ndb.StringProperty()
@@ -91,13 +92,18 @@ class Session(ndb.Model):
     startTime       = ndb.TimeProperty()
 
 class SessionForm(messages.Message):
-    name            = messages.StringProperty(1)
-    highlights      = messages.StringProperty(2, repeated=True)
-    speaker         = messages.StringProperty(3)
-    duration        = messages.FloatProperty(4)
-    typeOfSession   = messages.StringProperty(5)
-    date            = messages.DateProperty(6)
-    startTime       = messages.TimeProperty(7)
+    """SessionForm -- Session outbound form message"""
+    name            = messages.StringField(1)
+    highlights      = messages.StringField(2, repeated=True)
+    speaker         = messages.StringField(3)
+    duration        = messages.FloatField(4)
+    typeOfSession   = messages.StringField(5)
+    date            = messages.StringField(6)
+    startTime       = messages.StringField(7)
+
+class SesssionForms(messages.Message):
+    """SessionForms -- multiple Session outbound form message"""
+    items = messages.MessageField(SessionForm, 1, repeated=True)
 
 class TeeShirtSize(messages.Enum):
     """TeeShirtSize -- t-shirt size enumeration value"""
