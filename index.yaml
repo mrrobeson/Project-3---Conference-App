@@ -99,3 +99,19 @@ indexes:
   properties:
   - name: displayName
   - name: sessionWishlistKeys
+
+- kind: Session
+  properties:
+  - name: name
+  - name: speaker
+
+- kind: Session
+  properties:
+  - name: name
+  - name: typeOfSession
+
+- kind: Session
+  properties:
+  - name: name
+  - name: typeOfSession
+  - name: startTime
