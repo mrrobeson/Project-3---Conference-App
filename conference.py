@@ -784,8 +784,8 @@ class ConferenceApi(remote.Service):
     @endpoints.method(SES_GET_REQUEST, BooleanMessage,
             path='session/{websafeKey}',
             http_method='DELETE', name='unregisterFromSession')
-    def unregisterFromSession(self, request):
-        """Unregister user for selected session."""
+    def removeSessionFromWishlist(self, request):
+        """Remove session from user wishlist."""
         return self._sessionRegistration(request, reg=False)
 
 
@@ -815,6 +815,30 @@ class ConferenceApi(remote.Service):
                     names[session.parentConfId]) for session in sessions]
         )
 
+    @endpoints.method(ConferenceQueryForms, SessionForms,
+        path='sessions/date',
+        http_method='POST',
+        name='querySessionsByDate')
+    def querySessionByDate(self, request):
+        """Query session objects by date"""
+        sessions = self._getQuery(request)
+
+        s = sessions.filter(Session.date)
+
+        conf_keys = [(ndb.Key(Conference, sesh.parentConfId)) for sesh in sessions]
+        conferences = ndb.get_multi(conf_keys)
+
+        # put display names in a dict for easier fetching
+        names = {}
+        for conf in conferences:
+            names[conf.key.id()] = conf.name
+
+        # return individual SessionForm
+        return SessionForms(
+                items=[self._copySessionToForm(session, 
+                    names[session.parentConfId]) for session in sessions]
+        )
+
 # Query Question
 
     """Solve this query related problem - say you don't like workshops and sessions after 7PM
@@ -824,7 +848,7 @@ class ConferenceApi(remote.Service):
     start time you are ok with.
     
     filter(Session.typeOfSession=='Lecture')
-    filter(Session.typeOfSession=='')
+    filter(Session.typeOfSession=='Keynote')
     filter(Session.startTime<=19)
     """
 
@@ -834,9 +858,35 @@ class ConferenceApi(remote.Service):
 # should be the new featured speaker. Should be handled using App Engine Task Queue
 
 # getFeaturedSpeaker()
+# featured speaker would be the first speaker, and then the keynote
 # if the typeOfSession=='Keynote', speaker should be featured
 # check to see if the speaker is already the featured speaker
 # if not already featured, make featured.
 # if already featured, exit?
+    @ndb.transactional
+    def _determineFeaturedSpeaker(self, request):
+        """Check session type and set the speaker as featured
+        if the type is keynote.
+        """
+        session = ndb.Key(urlsafe=request.websafeKey).get()
+        # check that session exists
+        if not session:
+            raise endpoints.NotFoundException(
+                'No session found with key: %s' % request.websafeKey)
+        
+        # get associated conference
+        conf = ndb.Key(urlsafe=request.parentConfId).get()
+        # check that conference exists
+        if not conf:
+            raise endpoints.NotFoundException(
+                'No conference found with key: %s' % request.websafeConferenceKey)
+        
+        # check if keynote session
+        if session.typeOfSession=='keynote':
+            setattr(conf, featuredSpeaker, str(getattr(session, 'speaker')))
+        
+        return request
+
+
 
 api = endpoints.api_server([ConferenceApi]) # register API

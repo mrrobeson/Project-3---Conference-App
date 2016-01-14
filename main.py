@@ -37,6 +37,15 @@ class SendConfirmationEmailHandler(webapp2.RequestHandler):
                 'conferenceInfo')
         )
 
+class DetermineFeaturedSpeaker(webapp2.RequestHandler):
+    def post(self):
+        """Determine the featured speaker for a conference."""
+        #check to see if this is the 1st speaker
+        #if 1st speaker set as featured
+        #if not 1st, check for session type
+        #if session type == keynote, set featured
+        #update the conference object with the keynote
+
 
 app = webapp2.WSGIApplication([
     ('/crons/set_announcement', SetAnnouncementHandler),
