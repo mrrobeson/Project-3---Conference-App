@@ -1,4 +1,4 @@
-App Engine application for the Udacity training course.
+Google App Engine application for the Udacity training course. This application serves up a web api for tracking conferences and conferenc sessions. Users may login with authentication and create conferences, sessions within conferences, and track sessions they wish to attend.
 
 ## Products
 - [App Engine][1]
@@ -8,6 +8,13 @@ App Engine application for the Udacity training course.
 
 ## APIs
 - [Google Cloud Endpoints][3]
+- 
+
+## Design
+- The sessions models were chosen to have a parent conference id in order to be able to track back and retrieve details about the conference in addition to the session. This is necessary because users will want to know which conference a particular session is within, as well as the fact that the project required the api to support the websafeconfkey input in the 'create session' api.
+- User wishlist; the user profile model now has session keys stored. This allows the users to add keys for the sessions for which he/she wants to attend and for the application to easily retrieve these.
+- In addition to the sessions having a parent conf id, the conference has corresponding associated session keys. These are maintained against the conference for ease of retrieval come query time.
+- The featured speaker is new to the conference app. Each session has a speaker associated, while the conference model now has a 'featured speaker' chosen by the cron job simply by looking at the type of session created. If the session created is a keynote, and the conference doesn't already have a featured speaker, the speaker associated with the newly created keynote is set as the featured speaker for that conference.
 
 ## Setup Instructions
 1. Update the value of `application` in `app.yaml` to the app ID you
