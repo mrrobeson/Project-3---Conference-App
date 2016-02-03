@@ -16,6 +16,29 @@ Google App Engine application for the Udacity training course. This application 
 - In addition to the sessions having a parent conf id, the conference has corresponding associated session keys. These are maintained against the conference for ease of retrieval come query time.
 - The featured speaker is new to the conference app. Each session has a speaker associated, while the conference model now has a 'featured speaker' chosen by the cron job simply by looking at the type of session created. If the session created is a keynote, and the conference doesn't already have a featured speaker, the speaker associated with the newly created keynote is set as the featured speaker for that conference.
 
+conference.createConference -	Create new conference.
+conference.createSession -	Create new session.
+conference.filterPlayground -	Filter Playground
+conference.getAnnouncement -	Return Announcement from memcache.
+conference.getConference -	Return requested conference (by websafeConferenceKey).
+conference.getConferenceSessions -	Return all sessions given a conference.
+conference.getConferenceSessionsByType -	Given a conference, return all sessions of a specified type.
+conference.getConferencesCreated -	Return conferences created by user.
+conference.getConferencesToAttend -	Get list of conferences that user has registered for.
+conference.getProfile -	Return user profile.
+conference.getSessionsBySpeaker -	Given a speaker, return sesions by speaker across conferences.
+conference.getSessionsInWishlist -	Get list of sessions that user has registered for.
+conference.queryConferences -	Query for conferences.
+conference.querySessions -	Query for sessions.
+conference.querySessionsByDate -	Query session objects by date
+conference.registerForConference -	Register user for selected conference.
+conference.registerForSession -	Add session to user wishlist.
+conference.saveProfile -	Update & return user profile.
+conference.unregisterFromConference -	Unregister user for selected conference.
+conference.unregisterFromSession -	Remove session from user wishlist.
+conference.updateConference -	Update conference w/provided fields & return w/updated info.
+
+
 ## Setup Instructions
 1. Update the value of `application` in `app.yaml` to the app ID you
    have registered in the App Engine admin console and would like to use to host
