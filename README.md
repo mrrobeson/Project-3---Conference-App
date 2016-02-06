@@ -40,6 +40,17 @@ Google App Engine application for the Udacity training course. This application 
 - conference.updateConference;         	Update conference w/provided fields & return w/updated info.
 
 
+## Query Question
+   Solve this query related problem - say you don't like workshops and sessions after 7PM
+   Q:What is the problem with this query and what ways can you solve it?
+   A:Problem is that the datastore doesn't handle negative queries. You could
+   create a query with filters for the types of session you DO want and for the
+   start time you are ok with.
+   
+   filter(Session.typeOfSession=='Lecture')
+   filter(Session.typeOfSession=='Keynote')
+   filter(Session.startTime<=19)
+
 ## Setup Instructions
 1. Update the value of `application` in `app.yaml` to the app ID you
    have registered in the App Engine admin console and would like to use to host
