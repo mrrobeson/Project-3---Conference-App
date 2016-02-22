@@ -40,11 +40,8 @@ class SendConfirmationEmailHandler(webapp2.RequestHandler):
 class DetermineFeaturedSpeaker(webapp2.RequestHandler):
     def post(self):
         """Determine the featured speaker for a conference."""
-        #check to see if this is the 1st speaker
-        #if 1st speaker set as featured
-        #if not 1st, check for session type
-        #if session type == keynote, set featured
-        #update the conference object with the keynote
+        ConferenceApi._determineFeaturedSpeaker(self.request.get('speakerName'))
+        self.response.set_status(204)
 
 
 app = webapp2.WSGIApplication([
