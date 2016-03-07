@@ -177,7 +177,7 @@ class SessionQueryForms(messages.Message):
 
 class SessionType(messages.Enum):
     """SessionTypes -- types of sessions for Conference"""
-    NA = 1
+    NOT_SPECIFIED = 1
     WORKSHOP = 2
     LECTURE = 3
     KEYNOTE = 4
