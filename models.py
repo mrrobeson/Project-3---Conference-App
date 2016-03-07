@@ -17,9 +17,14 @@ import endpoints
 from protorpc import messages
 from google.appengine.ext import ndb
 
+# - - -Exceptions - - - - - - - - - - - - - - - - -
+
 class ConflictException(endpoints.ServiceException):
     """ConflictException -- exception mapped to HTTP 409 response"""
     http_status = httplib.CONFLICT
+
+
+# - - - Profile - - - - - - - - - - - - - - - - -
 
 class Profile(ndb.Model):
     """Profile -- User profile object"""
@@ -27,7 +32,7 @@ class Profile(ndb.Model):
     mainEmail = ndb.StringProperty()
     teeShirtSize = ndb.StringProperty(default='NOT_SPECIFIED')
     conferenceKeysToAttend = ndb.StringProperty(repeated=True)
-    sessionWishlistKeys = ndb.StringProperty(repeated=True)
+    sessionKeysInWishlist = ndb.StringProperty(repeated=True)
 
 class ProfileMiniForm(messages.Message):
     """ProfileMiniForm -- update Profile form message"""
@@ -40,16 +45,26 @@ class ProfileForm(messages.Message):
     mainEmail = messages.StringField(2)
     teeShirtSize = messages.EnumField('TeeShirtSize', 3)
     conferenceKeysToAttend = messages.StringField(4, repeated=True)
-    sessionWishlistKeys = messages.StringField(5, repeated=True)
+    sessionKeysInWishlist = messages.StringField(5, repeated=True)
 
+
+# - - - Messages - - - - - - - - - - - - - - - - -
 class StringMessage(messages.Message):
     """StringMessage-- outbound (single) string message"""
     data = messages.StringField(1, required=True)
+
+class StringMessage_Featured(messages.Message):
+    """StringMessage-- outbound (single) string message"""
+    sessionNames = messages.StringField(1)
+    speaker = messages.StringField(2)
+
 
 class BooleanMessage(messages.Message):
     """BooleanMessage-- outbound Boolean value message"""
     data = messages.BooleanField(1)
 
+
+# - - - Conference objects - - - - - - - - - - - - - - - - -
 class Conference(ndb.Model):
     """Conference -- Conference object"""
     name            = ndb.StringProperty(required=True)
@@ -58,62 +73,43 @@ class Conference(ndb.Model):
     topics          = ndb.StringProperty(repeated=True)
     city            = ndb.StringProperty()
     startDate       = ndb.DateProperty()
-    month           = ndb.IntegerProperty() # TODO: do we need for indexing like Java?
+    month           = ndb.IntegerProperty()
     endDate         = ndb.DateProperty()
     maxAttendees    = ndb.IntegerProperty()
     seatsAvailable  = ndb.IntegerProperty()
-    sessionKeysAssociated = ndb.StringProperty(repeated=True)
-    featuredSpeaker = ndb.StringProperty()
 
 class ConferenceForm(messages.Message):
     """ConferenceForm -- Conference outbound form message"""
-    name                = messages.StringField(1)
-    description         = messages.StringField(2)
-    organizerUserId     = messages.StringField(3)
-    topics              = messages.StringField(4, repeated=True)
-    city                = messages.StringField(5)
-    startDate           = messages.StringField(6) #DateTimeField()
-    month               = messages.IntegerField(7)
-    maxAttendees        = messages.IntegerField(8)
-    seatsAvailable      = messages.IntegerField(9)
-    endDate             = messages.StringField(10) #DateTimeField()
-    websafeKey          = messages.StringField(11)
+    name            = messages.StringField(1)
+    description     = messages.StringField(2)
+    organizerUserId = messages.StringField(3)
+    topics          = messages.StringField(4, repeated=True)
+    city            = messages.StringField(5)
+    startDate       = messages.StringField(6) #DateTimeField()
+    month           = messages.IntegerField(7)
+    maxAttendees    = messages.IntegerField(8)
+    seatsAvailable  = messages.IntegerField(9)
+    endDate         = messages.StringField(10) #DateTimeField()
+    websafeKey      = messages.StringField(11)
     organizerDisplayName = messages.StringField(12)
-    sessionKeysAssociated = messages.StringField(13, repeated=True)
-    featuredSpeaker = messages.StringField(14)
 
 class ConferenceForms(messages.Message):
     """ConferenceForms -- multiple Conference outbound form message"""
     items = messages.MessageField(ConferenceForm, 1, repeated=True)
 
-class Session(ndb.Model):
-    """SessionForm -- session object"""
-    name            = ndb.StringProperty(required=True)
-    highlights      = ndb.StringProperty(repeated=True)
-    speaker         = ndb.StringProperty()
-    duration        = ndb.FloatProperty()
-    typeOfSession   = ndb.StringProperty()
-    date            = ndb.DateProperty()
-    startTime       = ndb.TimeProperty()
-    parentConfId    = ndb.TimeProperty()
+
+class ConferenceQueryForm(messages.Message):
+    """ConferenceQueryForm -- Conference query inbound form message"""
+    field = messages.StringField(1)
+    operator = messages.StringField(2)
+    value = messages.StringField(3)
+
+class ConferenceQueryForms(messages.Message):
+    """ConferenceQueryForms -- multiple ConferenceQueryForm inbound form message"""
+    filters = messages.MessageField(ConferenceQueryForm, 1, repeated=True)
 
 
-class SessionForm(messages.Message):
-    """SessionForm -- Session outbound form message"""
-    name            = messages.StringField(1)
-    highlights      = messages.StringField(2, repeated=True)
-    speaker         = messages.StringField(3)
-    duration        = messages.FloatField(4)
-    typeOfSession   = messages.StringField(5)
-    date            = messages.StringField(6)
-    startTime       = messages.StringField(7)
-    parentConfId    = messages.StringField(8)
-    websafeKey      = messages.StringField(9)
-    parentConfName  = messages.StringField(10)
-
-class SessionForms(messages.Message):
-    """SessionForms -- multiple Session outbound form message"""
-    items = messages.MessageField(SessionForm, 1, repeated=True)
+# - - - Conference Atributes - - - - - - - - - - - - - - - - -
 
 class TeeShirtSize(messages.Enum):
     """TeeShirtSize -- t-shirt size enumeration value"""
@@ -133,12 +129,58 @@ class TeeShirtSize(messages.Enum):
     XXXL_M = 14
     XXXL_W = 15
 
-class ConferenceQueryForm(messages.Message):
-    """ConferenceQueryForm -- Conference query inbound form message"""
+
+# # - - - Session - - - - - - - - - - - - - - - - -
+class Session(ndb.Model):
+    """Session -- Session object"""
+    name          = ndb.StringProperty(required=True)
+    highlights    = ndb.StringProperty()
+    speaker       = ndb.StringProperty()
+    duration      = ndb.IntegerProperty()
+    typeOfSession = ndb.StringProperty()
+    date          = ndb.DateProperty()
+    startTime     = ndb.IntegerProperty()
+    endTime       = ndb.IntegerProperty()
+    venue         = ndb.StringProperty()
+    topics        = ndb.StringProperty(repeated=True)
+
+
+
+class SessionForm(messages.Message):
+    """SessionForm -- Session outbound form message"""
+    name = messages.StringField(1)
+    highlights    = messages.StringField(2)
+    speaker       = messages.StringField(3)
+    duration      = messages.StringField(4)
+    typeOfSession = messages.EnumField('SessionType', 5, default='NOT_SPECIFIED')
+    date          = messages.StringField(6)  #YYYY-MM-DD
+    startTime     = messages.StringField(7)  #HHMM
+    endTime       = messages.StringField(8)  #HHMM
+    venue         = messages.StringField(9)
+    topics        = messages.StringField(10, repeated=True)
+    websafeKey    = messages.StringField(11)
+
+
+class SessionForms(messages.Message):
+    """SessionForms -- multiple Sessions outbound form message"""
+    items = messages.MessageField(SessionForm, 1, repeated=True)
+
+class SessionQueryForm(messages.Message):
+    """SessionQueryForm -- Session query inbound form message"""
     field = messages.StringField(1)
     operator = messages.StringField(2)
     value = messages.StringField(3)
 
-class ConferenceQueryForms(messages.Message):
-    """ConferenceQueryForms -- multiple ConferenceQueryForm inbound form message"""
-    filters = messages.MessageField(ConferenceQueryForm, 1, repeated=True)
+class SessionQueryForms(messages.Message):
+    """SessionQueryForms -- multiple SessionQueryForm inbound form message"""
+    filters = messages.MessageField(SessionQueryForm, 1, repeated=True)
+
+class SessionType(messages.Enum):
+    """SessionTypes -- types of sessions for Conference"""
+    NA = 1
+    WORKSHOP = 2
+    LECTURE = 3
+    KEYNOTE = 4
+    PRESENTATION = 5
+
+

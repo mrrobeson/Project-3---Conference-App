@@ -95,23 +95,7 @@ indexes:
   - name: topics
   - name: name
 
-- kind: Profile
-  properties:
-  - name: displayName
-  - name: sessionWishlistKeys
-
 - kind: Session
+  ancestor: yes
   properties:
-  - name: name
-  - name: speaker
-
-- kind: Session
-  properties:
-  - name: name
-  - name: typeOfSession
-
-- kind: Session
-  properties:
-  - name: name
-  - name: typeOfSession
   - name: startTime

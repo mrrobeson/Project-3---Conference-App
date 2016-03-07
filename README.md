@@ -10,34 +10,42 @@ Google App Engine application for the Udacity training course. This application 
 - [Google Cloud Endpoints][3]
 - 
 
+## Instructions
+
 ## Design
-- The sessions models were chosen to have a parent conference id in order to be able to track back and retrieve details about the conference in addition to the session. This is necessary because users will want to know which conference a particular session is within, as well as the fact that the project required the api to support the websafeconfkey input in the 'create session' api.
+- The sessions object is created with conf.key as a parent. This is necessary because users will want to know which conference a particular session is within, as well as the fact that the project required the api to support the websafeconfkey input in the 'create session' api.
 - User wishlist; the user profile model now has session keys stored. This allows the users to add keys for the sessions for which he/she wants to attend and for the application to easily retrieve these.
-- In addition to the sessions having a parent conf id, the conference has corresponding associated session keys. These are maintained against the conference for ease of retrieval come query time.
-- The featured speaker is new to the conference app. Each session has a speaker associated, while the conference model now has a 'featured speaker' chosen by the cron job simply by looking at the type of session created. If the session created is a keynote, and the conference doesn't already have a featured speaker, the speaker associated with the newly created keynote is set as the featured speaker for that conference.
+- A catch-all session query was created primarily to facilitate testing of the application.
+- The featured speaker is new to the conference app. The speaker is stored to the memcache based on leading two or more sessions.
 
 ## Enpoints
-- conference.createConference;   Create new conference.
-- conference.createSession;      Create new session.
-- conference.filterPlayground;   Filter Playground
-- conference.getAnnouncement;	   Return Announcement from memcache.
-- conference.getConference;   	Return requested conference (by websafeConferenceKey).
-- conference.getConferenceSessions;     	Return all sessions given a conference.
-- conference.getConferenceSessionsByType;	Given a conference, return all sessions of a specified type.
-- conference.getConferencesCreated;    	Return conferences created by user.
-- conference.getConferencesToAttend;   	Get list of conferences that user has registered for.
-- conference.getProfile;               	Return user profile.
-- conference.getSessionsBySpeaker;     	Given a speaker, return sesions by speaker across conferences.
-- conference.getSessionsInWishlist;    	Get list of sessions that user has registered for.
-- conference.queryConferences;         	Query for conferences.
-- conference.querySessions;            	Query for sessions.
-- conference.querySessionsByDate;      	Query session objects by date
-- conference.registerForConference;    	Register user for selected conference.
-- conference.registerForSession;       	Add session to user wishlist.
-- conference.saveProfile;              	Update & return user profile.
-- conference.unregisterFromConference; 	Unregister user for selected conference.
-- conference.unregisterFromSession;    	Remove session from user wishlist.
-- conference.updateConference;         	Update conference w/provided fields & return w/updated info.
+Services > conference API v1
+Authorize requests using OAuth 2.0:
+
+
+conference.addSessionToWishlist:	Adds a Session to the users's wishlist.
+conference.createConference:	Creates a new conference.
+conference.createSession:	Creates a new Session.
+conference.filterSessionNotTypeByTime:	Returns filtered Sessions which are not type Session and not startTime
+conference.getAnnouncement:	Return Announcement from memcache.
+conference.getConference:	Return requested conference (by websafeConferenceKey).
+conference.getConferenceSessions:	Given a conference, return all sessions
+conference.getConferenceSessionsByDate:	Given a conference, return all sessions on specific date
+conference.getConferenceSessionsBySpeaker:	Given a conference, return all sessions a certain Speaker
+conference.getConferenceSessionsByTime:	Return all sessions starting between startTime and endTime
+conference.getConferenceSessionsByType:	Given a conference, return all sessions of a specified type  (eg lecture, keynote, workshop)
+conference.getConferencesCreated:	Returns conferences created by the user.
+conference.getConferencesToAttend:	Gets list of conferences that the user has registered for.
+conference.getFeaturedSpeaker:	Returns featured speaker of a conference from the memcache.
+conference.getProfile:	Returns user profile.
+conference.getSessionsInWishlist:	Returns the sessions in the users wishlist.
+conference.queryConferences:	Query for conferences.
+conference.querySessions:	Query for all existing sessions. Primarily used for testing purposes.
+conference.registerForConference:	Register user for selected conference.
+conference.removeSessionFromWishlist:	Remove session from wishlist.
+conference.saveProfile:	Update & return user profile.
+conference.unregisterFromConference:	Unregister user for selected conference.
+conference.updateConference	Update: conference w/provided fields & return w/updated info.
 
 
 ## Query Question
@@ -50,6 +58,11 @@ Google App Engine application for the Udacity training course. This application 
    filter(Session.typeOfSession=='Lecture')
    filter(Session.typeOfSession=='Keynote')
    filter(Session.startTime<=19)
+
+## Resources
+1. Watched Udacity Scaleable Web Apps course
+2. Extensively used the Google App Engine documentation: https://cloud.google.com/appengine/docs
+3. Stack Overflow and GAE subreddit for various errors encountered
 
 ## Setup Instructions
 1. Update the value of `application` in `app.yaml` to the app ID you

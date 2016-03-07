@@ -1,5 +1,5 @@
 application: conference-app-1005
-version: 1
+version: 4
 runtime: python27
 api_version: 1
 threadsafe: yes
@@ -32,6 +32,10 @@ handlers:       # static then dynamic
 
 - url: /tasks/send_confirmation_email
   script: main.app
+
+- url: /tasks/set_featured_speaker
+  script: main.app
+  login: admin
 
 - url: /crons/set_announcement
   script: main.app
